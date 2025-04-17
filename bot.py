@@ -2,10 +2,17 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from datetime import time as dtime
 import logging
+import random
+from urllib.parse import quote
+from collections import defaultdict
 
 # --- BEÁLLÍTÁSOK --- #
 TOKEN = '8182834378:AAH2pse6l2ur-A3dHdJDau0v6TwB2rkEfg8'
 GROUP_CHAT_ID = -1002254559635
+BASE_INVITE_LINK = 'https://t.me/labubuworldofficial?start='
+
+# --- ÁLLAPOT TÁROLÁS --- #
+referral_counts = defaultdict(int)
 
 # --- NAPLÓZÁS --- #
 logging.basicConfig(
@@ -19,10 +26,12 @@ def start(update, context):
 
 def welcome(update, context):
     for member in update.message.new_chat_members:
-        context.bot.send_message(
-            chat_id=update.effective_chat.id,
-            text=f"👋 Welcome, {member.first_name}!\nWe’re building something legendary. Type /info to learn more!"
-        )
+        ref = context.args[0] if context.args else None
+        welcome_msg = f"👋 Welcome, {member.first_name}!\nWe’re building something legendary. Type /info to learn more!"
+        if ref:
+            welcome_msg += f"\n💥 Referred by: {ref}"
+            referral_counts[ref] += 1
+        context.bot.send_message(chat_id=update.effective_chat.id, text=welcome_msg)
 
 def info(update, context):
     context.bot.send_message(
@@ -61,6 +70,48 @@ def chart(update, context):
         chat_id=update.effective_chat.id,
         text="📊 LABUBU is live on GeckoTerminal!\nTrack price, volume & more:",
         reply_markup=reply_markup
+    )
+
+def shill(update, context):
+    shill_templates = [
+        "🐇 $LABU is the next billion-dollar meme coin. Don't miss the train! #Solana #LABUBU",
+        "🚀 LABUBU just launched. We're going to the moon. Buy now: https://jup.ag/swap?input=SOL&output=2ygXYFRC82ZjoEEWt5rfEHPVfEdKxWb747GjQSHgVzxi",
+        "👀 If you're not holding $LABU yet... you're late. But not too late. Join the revolution.",
+        "💥 LABUBU is more than a meme. It's a mission. Tag 3 degens and let’s raid! 🐇💎",
+        "🔥 You can't stop what's coming. $LABU is LIVE. Web: https://labubu2025.github.io/labubu-token/landing-page.html"
+    ]
+    reply = random.choice(shill_templates)
+    context.bot.send_message(chat_id=update.effective_chat.id, text=reply)
+
+def refer(update, context):
+    username = update.effective_user.username or f"user{update.effective_user.id}"
+    encoded = quote(username)
+    referral_link = f"{BASE_INVITE_LINK}{encoded}"
+    context.bot.send_message(
+        chat_id=update.effective_chat.id,
+        text=f"🎯 Your personal referral link:\n{referral_link}\n\nInvite friends and grow the LABUBU community! 🐇"
+    )
+
+def leaderboard(update, context):
+    if not referral_counts:
+        context.bot.send_message(chat_id=update.effective_chat.id, text="📉 No referrals yet. Be the first to invite and earn fame!")
+        return
+    sorted_refs = sorted(referral_counts.items(), key=lambda x: x[1], reverse=True)[:10]
+    msg = "🏆 TOP REFERRERS:\n"
+    for i, (user, count) in enumerate(sorted_refs, start=1):
+        msg += f"{i}. {user} — {count} invites\n"
+    context.bot.send_message(chat_id=update.effective_chat.id, text=msg)
+
+def tweet(update, context):
+    tweets = [
+        "💬 $LABU is the next $DOGE. You just don’t know it yet. #Solana #Crypto",
+        "🐇 Just dropped a gem: $LABU. Early. Fast. Memetic.",
+        "If $LABUBU hits $0.01, I'm buying a castle on the moon. 🌕",
+        "When everyone else fades... LABUBU remains."
+    ]
+    context.bot.send_message(
+        chat_id=update.effective_chat.id,
+        text=f"🧵 Suggested tweet:\n{random.choice(tweets)}"
     )
 
 # --- AI STÍLUSÚ VÁLASZOK --- #
@@ -114,6 +165,10 @@ def main():
     dp.add_handler(CommandHandler("address", address))
     dp.add_handler(CommandHandler("web", web))
     dp.add_handler(CommandHandler("chart", chart))
+    dp.add_handler(CommandHandler("shill", shill))
+    dp.add_handler(CommandHandler("refer", refer))
+    dp.add_handler(CommandHandler("leaderboard", leaderboard))
+    dp.add_handler(CommandHandler("tweet", tweet))
     dp.add_handler(MessageHandler(Filters.status_update.new_chat_members, welcome))
     dp.add_handler(MessageHandler(Filters.text & ~Filters.command, ai_reply))
 
