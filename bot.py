@@ -1,6 +1,7 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ParseMode, InputMediaPhoto
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
-import logging, time
+from datetime import time as dtime
+import logging
 
 # --- BEÁLLÍTÁSOK --- #
 TOKEN = '8182834378:AAH2pse6l2ur-A3dHdJDau0v6TwB2rkEfg8'
@@ -84,9 +85,9 @@ def main():
 
     jq = updater.job_queue
     jq.run_repeating(post_hourly, interval=3600, first=10)
-    jq.run_daily(promo1, time=time.strptime("10:00", "%H:%M"))
-    jq.run_daily(promo2, time=time.strptime("16:00", "%H:%M"))
-    jq.run_daily(promo3, time=time.strptime("22:00", "%H:%M"))
+    jq.run_daily(promo1, time=dtime(10, 0))
+    jq.run_daily(promo2, time=dtime(16, 0))
+    jq.run_daily(promo3, time=dtime(22, 0))
 
     updater.start_polling()
     updater.idle()
