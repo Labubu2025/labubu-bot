@@ -1,4 +1,4 @@
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ParseMode, InputMediaPhoto
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from datetime import time as dtime
 import logging
@@ -8,7 +8,10 @@ TOKEN = '8182834378:AAH2pse6l2ur-A3dHdJDau0v6TwB2rkEfg8'
 GROUP_CHAT_ID = -1002254559635
 
 # --- NAPLÓZÁS --- #
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+logging.basicConfig(
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    level=logging.INFO
+)
 
 # --- VÁLASZ FUNKCIÓK --- #
 def start(update, context):
@@ -16,34 +19,51 @@ def start(update, context):
 
 def welcome(update, context):
     for member in update.message.new_chat_members:
-        context.bot.send_message(chat_id=update.effective_chat.id,
-            text=f"👋 Welcome, {member.first_name}!\nWe’re building something legendary. Type /info to learn more!")
+        context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text=f"👋 Welcome, {member.first_name}!\nWe’re building something legendary. Type /info to learn more!"
+        )
 
 def info(update, context):
-    context.bot.send_message(chat_id=update.effective_chat.id,
-        text="🌐 LABUBU is a meme coin built on Solana.\n\n🔗 Website:\nhttps://labubu2025.github.io/labubu-token/landing-page.html\n\n💰 Buy now:\nhttps://jup.ag/swap?input=SOL&output=2ygXYFRC82ZjoEEWt5rfEHPVfEdKxWb747GjQSHgVzxi")
+    context.bot.send_message(
+        chat_id=update.effective_chat.id,
+        text=(
+            "🌐 LABUBU is a meme coin built on Solana.\n\n"
+            "🔗 Website:\nhttps://labubu2025.github.io/labubu-token/landing-page.html\n\n"
+            "💰 Buy now:\nhttps://jup.ag/swap?input=SOL&output=2ygXYFRC82ZjoEEWt5rfEHPVfEdKxWb747GjQSHgVzxi"
+        )
+    )
 
 def buy(update, context):
-    context.bot.send_message(chat_id=update.effective_chat.id,
-        text="💸 Buy LABUBU here:\nhttps://jup.ag/swap?input=SOL&output=2ygXYFRC82ZjoEEWt5rfEHPVfEdKxWb747GjQSHgVzxi")
+    context.bot.send_message(
+        chat_id=update.effective_chat.id,
+        text="💸 Buy LABUBU here:\nhttps://jup.ag/swap?input=SOL&output=2ygXYFRC82ZjoEEWt5rfEHPVfEdKxWb747GjQSHgVzxi"
+    )
 
 def address(update, context):
-    context.bot.send_message(chat_id=update.effective_chat.id,
-        text="📬 Contract address:\n2ygXYFRC82ZjoEEWt5rfEHPVfEdKxWb747GjQSHgVzxi")
+    context.bot.send_message(
+        chat_id=update.effective_chat.id,
+        text="📬 Contract address:\n2ygXYFRC82ZjoEEWt5rfEHPVfEdKxWb747GjQSHgVzxi"
+    )
 
 def web(update, context):
-    context.bot.send_message(chat_id=update.effective_chat.id,
-        text="🌐 Website:\nhttps://labubu2025.github.io/labubu-token/landing-page.html")
+    context.bot.send_message(
+        chat_id=update.effective_chat.id,
+        text="🌐 Website:\nhttps://labubu2025.github.io/labubu-token/landing-page.html"
+    )
 
 def chart(update, context):
     keyboard = [[
         InlineKeyboardButton("📊 View Chart", url="https://www.geckoterminal.com/solana/pools/HYnCMEXCxfmjMBtQmeXPWGxaD4VaZponBMfq4TFx6Kki")
     ]]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    context.bot.send_message(chat_id=update.effective_chat.id,
-        text="📊 LABUBU is live on GeckoTerminal!\nTrack price, volume & more:", reply_markup=reply_markup)
+    context.bot.send_message(
+        chat_id=update.effective_chat.id,
+        text="📊 LABUBU is live on GeckoTerminal!\nTrack price, volume & more:",
+        reply_markup=reply_markup
+    )
 
-# --- AI JELLEGŰ VÁLASZOK ÜZENETRE --- #
+# --- AI STÍLUSÚ VÁLASZOK --- #
 def ai_reply(update, context):
     text = update.message.text.lower()
     if "how to buy" in text or "buy" in text:
@@ -57,7 +77,7 @@ def ai_reply(update, context):
     elif "chart" in text:
         chart(update, context)
 
-# --- ÓRÁNKÉNTI BUY POSZT KÉPPEL + GOMBOKKAL --- #
+# --- AUTOMATA POSZT KÉPPEL + GOMBOK --- #
 def post_hourly(context):
     keyboard = [[
         InlineKeyboardButton("💸 Buy Now", url="https://jup.ag/swap?input=SOL&output=2ygXYFRC82ZjoEEWt5rfEHPVfEdKxWb747GjQSHgVzxi"),
@@ -66,19 +86,22 @@ def post_hourly(context):
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     with open("buy_image.png", "rb") as image:
-        context.bot.send_photo(chat_id=GROUP_CHAT_ID, photo=image,
+        context.bot.send_photo(
+            chat_id=GROUP_CHAT_ID,
+            photo=image,
             caption="🚀 Time to fly with $LABUBU\n\n🐇 The future of Solana memes starts here.",
-            reply_markup=reply_markup)
+            reply_markup=reply_markup
+        )
 
 # --- NAPI 3 PROMÓ POSZT --- #
 def promo1(context):
     context.bot.send_message(chat_id=GROUP_CHAT_ID, text="🚀 LABUBU is more than a meme — it’s a mission.\nDon’t miss out. Join early. Be legendary.")
 
 def promo2(context):
-    context.bot.send_message(chat_id=GROUP_CHAT_ID, text="💥 Airdrop is live!\n🐇 Claim yours before it’s too late:\nhttps://docs.google.com/forms/d/1nCT02jWL_1aOyePJcz2Tff9Bif-f6SsDH_ml3DjnrkE/edit")
+    context.bot.send_message(chat_id=GROUP_CHAT_ID, text="🔥 Airdrop is live!\n🐇 Claim yours:\nhttps://docs.google.com/forms/d/1nCT02jWL_1aOyePJcz2Tff9Bif-f6SsDH_ml3DjnrkE/edit")
 
 def promo3(context):
-    context.bot.send_message(chat_id=GROUP_CHAT_ID, text="🌕 Building wealth together. LABUBU is the future.\nVisit us:\nhttps://labubu2025.github.io/labubu-token/landing-page.html")
+    context.bot.send_message(chat_id=GROUP_CHAT_ID, text="🌕 Building wealth together. LABUBU is the future.\nExplore:\nhttps://labubu2025.github.io/labubu-token/landing-page.html")
 
 # --- MAIN --- #
 def main():
