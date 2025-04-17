@@ -5,6 +5,22 @@ import logging
 import random
 from urllib.parse import quote
 from collections import defaultdict
+import threading
+from http.server import BaseHTTPRequestHandler, HTTPServer
+
+# --- FAKE PORT BINDING FOR RENDER --- #
+class DummyHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(b'LABUBU BOT ONLINE')
+
+def run_web_server():
+    server_address = ('', 10000)
+    httpd = HTTPServer(server_address, DummyHandler)
+    httpd.serve_forever()
+
+threading.Thread(target=run_web_server).start()
 
 # --- BEÁLLÍTÁSOK --- #
 TOKEN = '8182834378:AAH2pse6l2ur-A3dHdJDau0v6TwB2rkEfg8'
