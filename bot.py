@@ -67,4 +67,41 @@ def post_hourly(context):
 
     with open("buy_image.png", "rb") as image:
         context.bot.send_photo(chat_id=GROUP_CHAT_ID, photo=image,
-            caption="🚀 Time to fly
+            caption="🚀 Time to fly with $LABUBU\n\n🐇 The future of Solana memes starts here.",
+            reply_markup=reply_markup)
+
+# --- NAPI 3 PROMÓ POSZT --- #
+def promo1(context):
+    context.bot.send_message(chat_id=GROUP_CHAT_ID, text="🚀 LABUBU is more than a meme — it’s a mission.\nDon’t miss out. Join early. Be legendary.")
+
+def promo2(context):
+    context.bot.send_message(chat_id=GROUP_CHAT_ID, text="💥 Airdrop is live!\n🐇 Claim yours before it’s too late:\nhttps://docs.google.com/forms/d/1nCT02jWL_1aOyePJcz2Tff9Bif-f6SsDH_ml3DjnrkE/edit")
+
+def promo3(context):
+    context.bot.send_message(chat_id=GROUP_CHAT_ID, text="🌕 Building wealth together. LABUBU is the future.\nVisit us:\nhttps://labubu2025.github.io/labubu-token/landing-page.html")
+
+# --- MAIN --- #
+def main():
+    updater = Updater(TOKEN, use_context=True)
+    dp = updater.dispatcher
+
+    dp.add_handler(CommandHandler("start", start))
+    dp.add_handler(CommandHandler("info", info))
+    dp.add_handler(CommandHandler("buy", buy))
+    dp.add_handler(CommandHandler("address", address))
+    dp.add_handler(CommandHandler("web", web))
+    dp.add_handler(CommandHandler("chart", chart))
+    dp.add_handler(MessageHandler(Filters.status_update.new_chat_members, welcome))
+    dp.add_handler(MessageHandler(Filters.text & ~Filters.command, ai_reply))
+
+    jq = updater.job_queue
+    jq.run_repeating(post_hourly, interval=3600, first=10)
+    jq.run_daily(promo1, time=dtime(10, 0))
+    jq.run_daily(promo2, time=dtime(16, 0))
+    jq.run_daily(promo3, time=dtime(22, 0))
+
+    updater.start_polling()
+    updater.idle()
+
+if __name__ == '__main__':
+    main()
